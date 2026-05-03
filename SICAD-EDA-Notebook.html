@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SICAD · EDA Notebook · SSP Acapulco</title>
+<meta name="author" content="Marco Avila">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #111720;
+    --surface2: #161e2a;
+    --border: #1e2d3d;
+    --accent: #0a5cb8;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #cdd9e5;
+    --text-dim: #5a7a96;
+    --text-bright: #e6edf3;
+    --green: #22c55e;
+    --cell-bg: #0d1117;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Plus Jakarta Sans', sans-serif; font-size:13px; line-height:1.7; }
+
+  .nb-header {
+    border-bottom:1px solid var(--border);
+    padding:32px 48px 24px;
+    background:linear-gradient(180deg,#0d1421 0%,var(--bg) 100%);
+    position:relative; overflow:hidden;
+  }
+  .nb-header::before {
+    content:''; position:absolute; top:-60px; right:-80px;
+    width:300px; height:300px;
+    pointer-events:none;
+  }
+  .nb-badge {
+    display:inline-block;
+    background:rgba(59,130,246,0.1);  color:#60a5fa;  border:1px solid rgba(59,130,246,0.2);
+    color:var(--accent); font-size:10px; letter-spacing:0.15em; text-transform:uppercase;
+    padding:3px 10px; border-radius:2px; margin-bottom:14px;
+  }
+  .nb-title { font-family:'Plus Jakarta Sans', sans-serif; font-size:28px; font-weight:900; color:var(--text-bright); line-height:1.2; margin-bottom:6px; }
+  .nb-subtitle { color:var(--text-dim); font-size:12px; margin-bottom:20px; }
+  .nb-meta { display:flex; gap:24px; flex-wrap:wrap; }
+  .nb-meta-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim); }
+  .nb-meta-item span { color:var(--accent); }
+
+  .notebook { max-width:1100px; margin:0 auto; padding:24px 48px 80px; }
+
+  .section { margin:40px 0 0; }
+  .section-label { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .section-num { font-size:10px; color:var(--accent); letter-spacing:0.1em; border:1px solid rgba(0,212,170,0.25); padding:2px 8px; border-radius:2px; }
+  .section-title { font-family:'Plus Jakarta Sans', sans-serif; font-size:18px; font-weight:600; color:var(--text-bright); }
+  .section-title em { font-style:italic; color:var(--accent); }
+
+  .cell { margin-bottom:12px; border-radius:4px; overflow:hidden; border:1px solid var(--border); transition:border-color 0.2s; }
+  .cell:hover { border-color:rgba(0,212,170,0.2); }
+  .cell-header { display:flex; align-items:center; gap:10px; padding:8px 16px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .cell-type { font-size:9px; letter-spacing:0.15em; text-transform:uppercase; padding:2px 7px; border-radius:2px; }
+  .cell-type.code     { background:rgba(124,58,237,0.15); color:#a78bfa; border:1px solid rgba(124,58,237,0.3); }
+  .cell-type.markdown { background:rgba(0,212,170,0.1); color: var(--green);  border:1px solid rgba(0,212,170,0.2); }
+  .cell-type.output   { background:rgba(59,130,246,0.1);  color:#60a5fa;  border:1px solid rgba(59,130,246,0.2); }
+  .cell-title { font-size:11px; color:var(--text-dim); }
+ 
+  .cell-body { background:var(--cell-bg); padding:16px 20px; }
+  .code-block { font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.8; white-space:pre-wrap; }
+  .kw  { color:#ff79c6; }
+  .fn  { color:#50fa7b; }
+  .str { color:#f1fa8c; }
+  .cm  { color:#6272a4; font-style:italic; }
+  .num { color:#bd93f9; }
+  .var { color:#8be9fd; }
+
+  .md-cell { padding:16px 20px; background:rgba(0,212,170,0.03); border-left:3px solid rgba(0,212,170,0.3); font-size:12.5px; line-height:1.8; color:var(--text); }
+  .md-cell h3 { font-family:'Plus Jakarta Sans', sans-serif; color:var(--text-bright); font-size:15px; margin-bottom:8px; font-weight:600; }
+  .md-cell p { margin-bottom:8px; }
+  .md-cell strong { color:var(--accent); font-weight:500; }
+  .md-cell .insight { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:3px; padding:10px 14px; margin-top:10px; color:#fcd34d; font-size:12px; }
+  .md-cell .insight::before { content:'⚡ Insight: '; font-weight:700; }
+  .md-cell .note { background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:3px; padding:10px 14px; margin-top:10px; color:#93c5fd; font-size:12px; }
+  .md-cell .note::before { content:'📌 Nota metodológica: '; font-weight:700; }
+
+  .md-cons { padding:16px 20px; background:rgba(255, 255, 255, 0.03); border-left:3px solid rgba(255, 255, 255, 0.647); font-size:12.5px; line-height:1.8; color:var(--text); }
+  .md-cons h3 { font-family:'Plus Jakarta Sans', sans-serif; color:var(--text-bright); font-size:15px; margin-bottom:8px; font-weight:600; }
+  .md-cons p { margin-bottom:8px; }
+  .md-cons strong { color:var(--accent); font-weight:500; }
+
+  .md-cellv2 {      padding: 16px 20px;      font-size: 12.5px;      line-height: 1.85;      color: var(--text);    }
+  .md-cellv2 .insight { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:3px; padding:10px 14px; margin-top:10px; color:#fcd34d; font-size:12px; }
+  .md-cellv2 .insight::before { content:'⚡ Insight: '; font-weight:700; }
+
+  .md-cellv3 { padding-right: 20px;  padding-bottom: 18px; padding-left: 20px;  font-size: 12.5px; line-height: 1.85; color: var(--text); }
+  .md-cellv3 .insight { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:3px; padding:10px 14px; margin-top:10px; color:#fcd34d; font-size:12px; }
+  .md-cellv3 .insight::before { content:'⚡ Insight: '; font-weight:700; }
+
+
+  /* ---- DEFINICION CONCEPTUAL ---- */
+  .concept-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:0;
+    padding:20px; background:var(--cell-bg);
+  }
+  .concept-card {
+    padding:18px; border:1px solid var(--border); position:relative;
+  }
+  .concept-card:not(:last-child) { border-right:none; }
+  .concept-tag { font-size:9px; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:8px; }
+  .concept-icon { font-size:22px; margin-bottom:10px; }
+  .concept-title { font-family:'Plus Jakarta Sans', sans-serif; font-size:14px; font-weight:600; color:var(--text-bright); margin-bottom:8px; }
+  .concept-desc { font-size:11px; color:var(--text-dim); line-height:1.7; }
+  .concept-formula { margin-top:10px; padding:8px 10px; background:rgba(0,0,0,0.3); border-radius:3px; font-size:10px; color:var(--accent); border-left:2px solid var(--accent); }
+
+  /* ---- KPI CARDS ---- */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:16px 20px; background:var(--cell-bg); }
+  .kpi-grid-5 { grid-template-columns:repeat(5,1fr); }
+  .kpi-card { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:14px 16px; position:relative; overflow:hidden; }
+  .kpi-card::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .kpi-card.green::after  { background:var(--green); }
+  .kpi-card.accent::after { background:var(--accent); }
+  .kpi-card.warn::after   { background:var(--warn); }
+  .kpi-card.danger::after { background:var(--danger); }
+  .kpi-card.purple::after { background:#a78bfa; }
+  .kpi-card.blue::after   { background:#60a5fa; }
+  .kpi-label { font-size:9px; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:6px; }
+  .kpi-value { font-family:'Plus Jakarta Sans', sans-serif; font-size:22px; font-weight:900; color:var(--text-bright); margin-bottom:3px; }
+  .kpi-sub   { font-size:10px; color:var(--text-dim); }
+  .kpi-delta { font-size:10px; margin-top:4px; }
+  .kpi-delta.up   { color:var(--green); }
+  .kpi-delta.down { color:var(--danger); }
+  .kpi-delta.warn { color:var(--warn); }
+  .kpi-grid2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-right: 20px; padding-bottom: 10px;  padding-left: 20px;  }
+  
+
+  /* ---- SCENARIO CARDS ---- */
+  .scenario-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; padding:20px; background:var(--cell-bg); }
+  .scenario-card { padding:20px; border:1px solid var(--border); position:relative; }
+  .scenario-card:not(:last-child) { border-right:none; }
+  .scenario-card.highlight { background:rgba(239,68,68,0.03); border-color:rgba(239,68,68,0.25); }
+  .scenario-card.positive  { background:rgba(63,185,80,0.03); border-color:rgba(63,185,80,0.2); }
+  .scenario-tag { font-size:9px; text-transform:uppercase; letter-spacing:0.15em; margin-bottom:8px; }
+  .scenario-tag.pre  { color:var(--text-dim); }
+  .scenario-tag.impl { color:var(--danger); }
+  .scenario-tag.post { color:var(--green); }
+  .scenario-month { font-family:'Plus Jakarta Sans', sans-serif; font-size:16px; font-weight:600; color:var(--text-bright); margin-bottom:16px; }
+
+  .scenario-metric { margin-bottom:12px; }
+  .s-label { font-size:10px; color:var(--text-dim); margin-bottom:3px; }
+  .s-bar-wrap { background:rgba(255,255,255,0.05); border-radius:2px; height:6px; overflow:hidden; }
+  .s-bar { height:100%; border-radius:2px; }
+  .s-bar.green  { background:var(--green); }
+  .s-bar.warn   { background:var(--warn); }
+  .s-bar.danger { background:var(--danger); }
+  .s-bar.blue   { background:#60a5fa; }
+  .s-value { font-size:12px; font-weight:700; margin-top:3px; }
+  .s-value.green  { color:var(--green); }
+  .s-value.danger { color:var(--danger); }
+  .s-value.warn   { color:var(--warn); }
+  .s-value.blue   { color:#60a5fa; }
+  .s-value.dim    { color:var(--text-dim); }
+
+  .scenario-divider { margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+  .peso-label { font-size:10px; color:var(--text-dim); margin-bottom:2px; }
+  .peso-value { font-family:'Plus Jakarta Sans', sans-serif; font-size:17px; font-weight:900; margin-bottom:2px; }
+  .peso-value.red    { color:var(--danger); }
+  .peso-value.yellow { color:var(--warn); }
+  .peso-value.teal   { color:var(--accent); }
+  .peso-value.dim    { color:var(--text-dim); }
+
+  /* ---- CHARTS ---- */
+  .chart-container { padding:20px; background:var(--cell-bg); }
+  .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .chart-box { background:var(--surface2); border:1px solid var(--border); border-radius:4px; padding:16px; }
+  .chart-box.full { grid-column:1/-1; }
+  .chart-label { font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-dim); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .chart-label::before { content:''; display:inline-block; width:3px; height:12px; background:var(--accent); border-radius:1px; }
+  canvas { max-height:220px; }
+
+  /* ---- TABLE ---- */
+  .data-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .data-table th { text-align:left; padding:8px 12px; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); border-bottom:1px solid var(--border); background:var(--surface); }
+  .data-table td { padding:8px 12px; border-bottom:1px solid rgba(30,45,61,0.5); color:var(--text); }
+  .data-table tr:hover td { background:rgba(0,212,170,0.03); }
+  .td-num { text-align:right; font-variant-numeric:tabular-nums; }
+  .td-green  { color:var(--green); }
+  .td-danger { color:var(--danger); }
+  .td-warn   { color:var(--warn); }
+  .td-accent { color:var(--accent); }
+  .td-dim    { color:var(--text-dim); }
+  .mini-bar  { height:4px; background:rgba(0,212,170,0.15); border-radius:2px; overflow:hidden; width:70px; }
+  .mini-bar-fill { height:100%; border-radius:2px; }
+
+  .badge { display:inline-block; font-size:9px; padding:1px 6px; border-radius:2px; }
+  .badge-danger  { background:rgba(239,68,68,0.15);  color:var(--danger); border:1px solid rgba(239,68,68,0.3); }
+  .badge-warn    { background:rgba(245,158,11,0.15);  color:var(--warn);   border:1px solid rgba(245,158,11,0.3); }
+  .badge-green   { background:rgba(63,185,80,0.15);   color:var(--green);  border:1px solid rgba(63,185,80,0.3); }
+  .badge-accent  { background:rgba(0,212,170,0.12);   color:var(--accent); border:1px solid rgba(0,212,170,0.3); }
+
+  /* ---- CONCLUSION ---- */
+  .conclusion-box { background:linear-gradient(135deg,rgba(0,212,170,0.06),rgba(124,58,237,0.06)); border:1px solid rgba(0,212,170,0.2); border-radius:4px; padding:24px 28px; margin:20px; }
+  .conclusion-box h3 { font-family:'Plus Jakarta Sans', sans-serif; font-size:17px; color:var(--text-bright); margin-bottom:16px; }
+  .conclusion-item { display:flex; gap:12px; margin-bottom:12px; font-size:12px; }
+  .conclusion-icon { color:var(--accent); flex-shrink:0; font-size:11px; padding-top:2px; }
+  .conclusion-text { color:var(--text); line-height:1.7; }
+  .conclusion-text strong { color:var(--text-bright); }
+
+  /* ── LINK ── */
+  .demo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 20px;
+      letter-spacing: 0.02em;
+      transition: opacity 0.2s;
+    }
+
+    .demo-link:hover {
+      opacity: 0.85;
+    }
+
+  .nb-footer { margin-top:60px; padding:20px 0; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--text-dim); }
+  .nb-footer span { color:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="nb-header">
+  <div class="nb-badge">Data Analysis · 2025</div>
+  <div class="nb-title">SICAD · Exploratory Data Analysis</div>
+  <div class="nb-subtitle">Detección de Corrupción Operativa y Recuperación del Erario Público · SSP Acapulco · Abr–Jun 2025</div>
+  <div class="nb-meta">
+    <div class="nb-meta-item">Plantilla: <span>2,117 elementos</span></div>
+    <div class="nb-meta-item">Masa salarial: <span>$12.28M MXN/mes</span></div>
+    <div class="nb-meta-item">Periodo: <span>Abril – Junio 2025</span></div>
+    <div class="nb-meta-item">Industria: <span>Gobierno / Seguridad Pública</span></div>
+    <div class="nb-meta-item">Stack: <span>Python · Pandas · PostgreSQL</span></div>
+  </div>
+</div>
+
+<div class="notebook">
+
+  <!-- BANNER EJECUTIVO -->
+  <div class="section" style="margin-top:24px;">
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">executive summary</span><span class="cell-title">El resultado, por qué este proyecto importa</span></div>
+      <div class="md-cellv2">
+        <h3>La Secretaría de Seguridad Pública de Acapulco pagaba nómina a empleados que no se presentaban.<br><span style="color:var(--accent);">Nadie lo sabía porque nadie podía probarlo.</span></h3>
+        <p>El proceso de firma manual de papeletas permitía que el operador de mesa firmara por empleados ausentes sin dejar evidencia. <strong>Sin biometría, sin registro digital, sin trazabilidad.</strong> El Ayuntamiento recibía papeletas con 100% de firmas aparentes. La presencia real era otra historia.</p>
+        <p>El SICAD, Sistema Integral de Control Administrativo y Datos, convirtió esa opacidad en datos. En el primer mes de operación, el sistema detectó que <strong>1 de cada 3 elementos</strong> tenía firma en papel sin respaldo biométrico. Eso no es un error, es evidencia de corrupción operativa sistemática.</p>
+      </div>
+      <div class="kpi-grid2" style="grid-template-columns:repeat(3,1fr);" >
+        <div class="kpi-card danger">
+          <div class="kpi-label">Anomalías Tipo C · Mayo 2025</div>
+          <div class="kpi-value">699</div>
+          <div class="kpi-sub">firmas en papel sin huella biométrica</div>
+          <div class="kpi-delta down">33% de la plantilla · primer mes SICAD</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Recuperación Erario Q2 2025</div>
+          <div class="kpi-value">$232K</div>
+          <div class="kpi-sub">MXN · descuentos Tipo B detectados</div>
+          <div class="kpi-delta up">Invisible en el modelo anterior</div>
+        </div>
+        <div class="kpi-card accent">
+          <div class="kpi-label">Efecto Disuasivo · Jun vs May</div>
+          <div class="kpi-value">−27.2%</div>
+          <div class="kpi-sub">699 → 509 anomalías sin sanciones</div>
+          <div class="kpi-delta up">Solo la existencia del registro lo logró</div>
+        </div>
+      </div>
+      <div class="md-cellv3">
+        <div class="insight">La Dirección de Policía Preventiva Auxiliar concentraba 168 de las 699 anomalías de Mayo — el 24% del total en una sola unidad. Esa concentración no es ruido estadístico: señala dónde se originaba la mayor parte de la corrupción operativa y dónde deben enfocarse las acciones disciplinarias.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 00: CONTEXTO -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">00</span>
+      <span class="section-title">Business Context / <em>Contexto de Negocio</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Problem statement</span></div>
+      <div class="md-cell">
+        <h3>El Problema Real: Corrupción en las Mesas de Firma</h3>
+        <p>La SSP Acapulco paga la nómina de <strong>2,117 elementos</strong> mediante papeletas físicas emitidas quincenalmente por el Ayuntamiento. Antes del SICAD, el proceso era simple y fácil de manipular: el empleado se identificaba <em>verbalmente</em>, el responsable de mesa buscaba su nombre en el listado y le entregaba la papeleta para firma autógrafa. Sin registro digital. Sin evidencia.</p>
+        <p>Esa sencillez era el problema. El responsable de mesa podía firmar por empleados ausentes y el Ayuntamiento recibía papeletas con el 100% de firmas aparentes. La presencia física real era otra historia. Y generaba tres consecuencias concretas que nadie podía cuantificar:</p>
+        <p><strong>1.</strong> El erario pagaba sueldos completos a elementos que no prestaban el servicio, sin mecanismo para detectarlo ni probarlo.</p>
+        <p><strong>2.</strong> Los descuentos por ausencia ($466 MXN por quincena) no se aplicaban porque las ausencias no quedaban registradas. Los operadores de mesa las cubrían con una firma falsa.</p>
+        <p><strong>3.</strong> No existía trazabilidad sobre qué operador de mesa había firmado qué papeleta, haciendo imposible cualquier proceso administrativo o sancionatorio.</p>
+        <div class="note">No presentarse a firmar es una incidencia administrativa ordinaria: genera un descuento de <strong>$466 MXN</strong> en la siguiente quincena. La anomalía real no es la ausencia del empleado, es la <strong>firma en papel de alguien que no validó biométricamente su presencia</strong>. Eso no ocurre por descuido; requiere que el operador de mesa firme deliberadamente por alguien que no estuvo.</div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Marco conceptual: Tres tipos de registro</span></div>
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="concept-tag" style="color:var(--green)">Tipo A — Presencia verificada</div>
+          <div class="concept-icon">✅</div>
+          <div class="concept-title">Firma Biométrica + Firma en Papel</div>
+          <div class="concept-desc">El empleado acudió personalmente. El sistema SICAD registró su huella dactilar y el operador le entregó la papeleta para firma autógrafa. Presencia 100% verificable.</div>
+          <div class="concept-formula">Sistema: HIT · Papel: FIRMADO → VÁLIDO</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.02);">
+          <div class="concept-tag" style="color:var(--warn)">Tipo B — Ausencia registrada</div>
+          <div class="concept-icon">⚠️</div>
+          <div class="concept-title">Sin Firma Biométrica · Sin Firma en Papel</div>
+          <div class="concept-desc">El empleado no acudió. No hay registro en SICAD ni firma en papeleta. Incidencia administrativa estándar. Se aplica descuento de $466 MXN en siguiente quincena.</div>
+          <div class="concept-formula" style="border-color:var(--warn); color:var(--warn);">Sistema: MISS · Papel: VACÍO → DESCUENTO $466</div>
+        </div>
+        <div class="concept-card" style="border-color:rgba(239,68,68,0.35); background:rgba(239,68,68,0.03);">
+          <div class="concept-tag" style="color:var(--danger)">Tipo C — Anomalía / Corrupción</div>
+          <div class="concept-icon">🚨</div>
+          <div class="concept-title">Firma en Papel SIN Validación Biométrica</div>
+          <div class="concept-desc">Existe firma autógrafa en la papeleta del Ayuntamiento pero SICAD no registró huella para ese empleado en ese periodo. El operador de mesa firmó por una persona ausente.</div>
+          <div class="concept-formula" style="border-color:var(--danger); color:var(--danger);">Sistema: MISS · Papel: FIRMADO → ANOMALÍA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Business questions</span></div>
+      <div class="md-cell">
+        <h3>Preguntas de Negocio</h3>
+        <p><strong>1.</strong> ¿Cuántas firmas en papel carecen de respaldo biométrico en SICAD, y quién es responsable de esas anomalías?</p>
+        <p><strong>2.</strong> ¿Cuál es la recuperación real del erario vía descuentos por ausencia legítima ($466/empleado)?</p>
+        <p><strong>3.</strong> ¿Qué áreas y operadores de mesa concentran el mayor número de anomalías Tipo C?</p>
+        <p><strong>4.</strong> ¿El SICAD genera un efecto disuasivo medible entre Abril y Junio 2025?</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 01: LIMPIEZA -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">01</span>
+      <span class="section-title">Data Acquisition &amp; Cleaning / <em>Adquisición y Limpieza</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">code</span><span class="cell-title">01_load_and_clean.py</span></div>
+      <div class="cell-body">
+        <div class="code-block"><span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+<span class="kw">import</span> <span class="var">numpy</span> <span class="kw">as</span> <span class="var">np</span>
+<span class="kw">from</span> <span class="var">datetime</span> <span class="kw">import</span> <span class="var">datetime</span>, <span class="var">timedelta</span>
+
+<span class="cm"># ── Fuente: Plantilla oficial SSP Acapulco (xlsx · 2,119 filas · 7 cols)</span>
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">read_excel</span>(<span class="str">'Plantilla_SSP_Sueldos.xlsx'</span>,
+              <span class="var">sheet_name</span>=<span class="str">'PLANTILLA+PERSONAL+SIN+SUELDO'</span>, <span class="var">header</span>=<span class="num">1</span>)
+
+<span class="var">df</span>.<span class="var">columns</span> = [<span class="str">'RFC'</span>,<span class="str">'NUM_EMPLEADO'</span>,<span class="str">'NOMBRE'</span>,<span class="str">'CATEGORIA'</span>,
+               <span class="str">'FECHA_INGRESO'</span>,<span class="str">'UBICACION'</span>,<span class="str">'SUELDO'</span>]
+
+<span class="cm"># ── Coercion de tipos</span>
+<span class="var">df</span>[<span class="str">'SUELDO'</span>] = <span class="var">pd</span>.<span class="fn">to_numeric</span>(<span class="var">df</span>[<span class="str">'SUELDO'</span>], <span class="var">errors</span>=<span class="str">'coerce'</span>)
+
+<span class="cm"># ── FIX CRÍTICO: FECHA_INGRESO viene como serial entero de Excel</span>
+<span class="cm">#    ej. 44470 = 1 Oct 2021 · sin esta corrección el EDA de antigüedad es inválido</span>
+<span class="var">df</span>[<span class="str">'FECHA_INGRESO_DT'</span>] = <span class="var">df</span>[<span class="str">'FECHA_INGRESO'</span>].<span class="fn">apply</span>(
+    <span class="kw">lambda</span> <span class="var">n</span>: <span class="var">datetime</span>(<span class="num">1899</span>,<span class="num">12</span>,<span class="num">30</span>) + <span class="var">timedelta</span>(<span class="var">days</span>=<span class="fn">int</span>(<span class="var">n</span>))
+    <span class="kw">if</span> <span class="var">pd</span>.<span class="fn">notna</span>(<span class="var">n</span>) <span class="kw">else</span> <span class="var">pd</span>.<span class="var">NaT</span>)
+
+<span class="cm"># ── Feature engineering</span>
+<span class="var">df</span>[<span class="str">'CAT_NOMBRE'</span>]    = <span class="var">df</span>[<span class="str">'CATEGORIA'</span>].<span class="fn">str</span>.<span class="fn">extract</span>(<span class="str">r'^\d+\s*-\s*(.+)'</span>)
+<span class="var">df</span>[<span class="str">'AREA_NOMBRE'</span>]   = <span class="var">df</span>[<span class="str">'UBICACION'</span>].<span class="fn">str</span>.<span class="fn">extract</span>(<span class="str">r'^\d+\s*-\s*(.+)'</span>)
+<span class="var">df</span>[<span class="str">'ANTIGUEDAD_AÑOS'</span>] = (
+    (<span class="var">datetime</span>(<span class="num">2025</span>,<span class="num">4</span>,<span class="num">1</span>) - <span class="var">df</span>[<span class="str">'FECHA_INGRESO_DT'</span>]).<span class="var">dt</span>.<span class="var">days</span> / <span class="num">365.25</span>
+).<span class="fn">round</span>(<span class="num">1</span>)
+
+<span class="var">OPERATIVO_KW</span> = [<span class="str">'POLICIA'</span>,<span class="str">'OFICIAL'</span>,<span class="str">'SUBOFICIAL'</span>,<span class="str">'ASISTENTE TURISTICO'</span>]
+<span class="var">df</span>[<span class="str">'TIPO'</span>] = <span class="var">df</span>[<span class="str">'CAT_NOMBRE'</span>].<span class="fn">apply</span>(
+    <span class="kw">lambda</span> <span class="var">x</span>: <span class="str">'Operativo'</span> <span class="kw">if</span> <span class="fn">any</span>(<span class="var">k</span> <span class="kw">in</span> <span class="fn">str</span>(<span class="var">x</span>).<span class="fn">upper</span>() <span class="kw">for</span> <span class="var">k</span> <span class="kw">in</span> <span class="var">OPERATIVO_KW</span>)
+    <span class="kw">else</span> <span class="str">'Administrativo'</span>)
+
+<span class="cm"># ── Resultado: 2,117 filas · 0 nulos en SUELDO · sin duplicados en NUM_EMPLEADO</span></div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Data quality report</span></div>
+      <div class="cell-body">
+        <div class="code-block"><span class="cm">Shape final: (2117, 12)
+────────────────────────────────────────────────────────────
+ Col               dtype          Nulls   Observación
+────────────────────────────────────────────────────────────
+ RFC               object         0       Censurado (privacidad)
+ NUM_EMPLEADO      object         0       Censurado — sin duplicados ✓
+ NOMBRE            object         0       Censurado — normalizado a mayúsculas ✓
+ CATEGORIA         object         0       Compuesta "ID - NOMBRE" → parseada
+ FECHA_INGRESO_DT  datetime64     0       Corregida desde serial Excel ✓
+ UBICACION         object         0       Compuesta "ID - NOMBRE" → parseada
+ SUELDO            float64        0       Rango: $611 – $21,138 MXN ✓
+ CAT_NOMBRE        object         0       Feature extraída ✓
+ AREA_NOMBRE       object         0       Feature extraída ✓
+ TIPO              object         0       Operativo: 1,727 · Administrativo: 390
+ ANTIGUEDAD_AÑOS   float64        0       Rango: 0.1 – 38.4 años
+────────────────────────────────────────────────────────────
+⚠  2 registros con SUELDO &lt; $700 → posibles altas parciales de quincena
+✓  RFC validado: patrón 13 caracteres [A-Z]{4}[0-9]{6}[A-Z0-9]{3}
+✓  Sin duplicados en NUM_EMPLEADO</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02: DECISIONES ESTRATÉGICAS -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">02</span>
+      <span class="section-title">Strategic Decisions · <em>Criterio Detrás del Análisis</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Por qué biometría y no otras soluciones</span></div>
+      <div class="md-cell">
+        <h3>Decisión 1 — La solución tenía que hacer imposible la falsificación, no solo más difícil</h3>
+        <p>Evaluamos varias alternativas antes de llegar a la huella dactilar: lista digital con firma electrónica en tablet, código QR por empleado, registro fotográfico. Todas tienen el mismo problema, pueden operarse por un tercero. El operador de mesa puede escanear el QR de alguien ausente, firmar en su nombre en la tablet o fotografiar su credencial.</p>
+        <p>La huella dactilar es el único registro que exige presencia física del titular. No puede delegarse ni replicarse desde la mesa. Esa restricción es exactamente lo que el sistema necesitaba: que la anomalía Tipo C sea <strong>imposible de crear sin acción deliberada del operador</strong>, y por tanto, directamente atribuible a él.</p>
+        <div class="note">La decisión de usar biometría no fue tecnológica, fue de diseño de control interno. La tecnología es el medio; el objetivo era eliminar la ambigüedad sobre quién es responsable de cada registro.</div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Por qué Tipo C es el KPI central y no la tasa de presencia</span></div>
+      <div class="md-cell">
+        <h3>Decisión 2 — Medir la corrupción, no la asistencia</h3>
+        <p>El indicador obvio en un sistema de control de presencia es la <strong>tasa de asistencia</strong>. Pero esa métrica no distingue entre un empleado que faltó legítimamente (Tipo B) y uno cuya ausencia fue cubierta con una firma falsa (Tipo C). Ambos reducen la tasa de presencia exactamente igual.</p>
+        <p>El indicador que importa es la <strong>tasa de anomalía Tipo C</strong>: cuántas firmas en papel no tienen respaldo biométrico. Esa métrica solo puede moverse por acción del operador de mesa, el comportamiento del empleado no tiene incidencia. Un sistema biométrico sano debería tener Tipo C → 0%. Cualquier valor mayor es responsabilidad directa y atribuible.</p>
+        <div class="insight">Cuando la tasa Tipo A cayó de 86.5% a 55% en Mayo, la lectura superficial sería "bajó la asistencia". La lectura correcta es "el sistema expuso que muchas de esas firmas de Abril no correspondían a presencias reales". El KPI correcto cambia completamente la interpretación del fenómeno.</div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Por qué auditoría cruzada y no solo el sistema</span></div>
+      <div class="md-cell">
+        <h3>Decisión 3 — El valor está en la discrepancia, no en el registro</h3>
+        <p>Un sistema biométrico solo registra quién validó su huella. Por sí solo no prueba nada sobre la nómina, no sabe si ese empleado cobró, firmó la papeleta o si alguien más lo hizo por él. El valor analítico surge cuando se cruzan dos fuentes independientes: el registro del SICAD y la papeleta física del Ayuntamiento.</p>
+        <p>Ese cruce fue el diseño central del análisis. El SICAD registra presencias biométricas; el Ayuntamiento registra firmas autógrafas. La discrepancia entre ambos, papel firmado sin huella, es la evidencia. Sin el cruce, tenemos dos registros. Con el cruce, tenemos prueba.</p>
+        <div class="note">Por eso los datos del Ayuntamiento, papeletas físicas digitalizadas, son tan importantes como el sistema biométrico. Un solo registro no detecta la anomalía. Se necesitan dos fuentes independientes para que la discrepancia sea verificable y accionable ante el OIC.</div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Por qué PostgreSQL y no Excel o una hoja de cálculo</span></div>
+      <div class="md-cell">
+        <h3>Decisión 4 — Escalabilidad y trazabilidad de auditoría</h3>
+        <p>Con 2,117 elementos y registros quincenales, el volumen no justifica por sí solo una base relacional, Excel lo manejaría. La razón para elegir PostgreSQL fue otra: <strong>trazabilidad y auditoría</strong>.</p>
+        <p>Cada registro tiene timestamp de inserción, usuario que lo cargó y fuente de origen. Eso permite responder preguntas legales: ¿cuándo se registró esta anomalía? ¿quién la cargó? ¿el registro fue modificado? En un proceso administrativo ante el OIC, esa trazabilidad no es un detalle técnico, es evidencia.</p>
+        <p>Además, PostgreSQL permite agregar nuevas quincenas sin modificar la estructura, escalar a otros municipios o dependencias, y conectar el sistema a dashboards en tiempo real conforme el proyecto madure.</p>
+        <div class="insight">Elegir tecnología en proyectos de gobierno no es solo una decisión técnica. PostgreSQL sobre Excel es una decisión de gobernanza de datos: quién puede modificar qué, cuándo y con qué registro. Eso determina si el sistema sirve como base probatoria o solo como referencia interna.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03: EDA NOMINA -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">03</span>
+      <span class="section-title">EDA · <em>Estructura de la Nómina</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Payroll snapshot — Abril 2025</span></div>
+      <div class="kpi-grid kpi-grid-5">
+        <div class="kpi-card accent">
+          <div class="kpi-label">Masa Salarial / mes</div>
+          <div class="kpi-value">$12.28M</div>
+          <div class="kpi-sub">MXN · 2,117 elementos</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Sueldo Promedio</div>
+          <div class="kpi-value">$5,803</div>
+          <div class="kpi-sub">MXN por elemento</div>
+        </div>
+        <div class="kpi-card warn">
+          <div class="kpi-label">Sueldo Mediana</div>
+          <div class="kpi-value">$5,675</div>
+          <div class="kpi-sub">IQR: $675 MXN (muy estrecho)</div>
+        </div>
+        <div class="kpi-card purple">
+          <div class="kpi-label">Personal Operativo</div>
+          <div class="kpi-value">81.6%</div>
+          <div class="kpi-sub">1,727 de 2,117 elementos</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-label">Outliers Salariales</div>
+          <div class="kpi-value">423</div>
+          <div class="kpi-sub">$3.67M masa · método IQR</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Charts Salary structure</span></div>
+      <div class="chart-container">
+        <div class="chart-row">
+          <div class="chart-box">
+            <div class="chart-label">Histograma Salarial — 2,117 elementos</div>
+            <canvas id="histChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <div class="chart-label">Masa Salarial por Categoría (Top 8)</div>
+            <canvas id="catChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-row" style="margin-top:16px;">
+          <div class="chart-box">
+            <div class="chart-label">Operativo vs. Administrativo — Headcount y Masa</div>
+            <canvas id="tipoChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <div class="chart-label">Sueldo Promedio por Antigüedad (años de servicio)</div>
+            <canvas id="antChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Finding: salary compression + seniority anomaly</span></div>
+      <div class="md-cell">
+        <h3>Hallazgo: Compresión Salarial y Ausencia de Meritocracia</h3>
+        <p>El IQR de la nómina es de apenas <strong>$675 MXN</strong> sobre una masa de $12.28M. El 50% central del personal percibe entre $5,059 y $5,734 MXN una tabulación salarial rígida por categoría que deja poco margen para diferenciación.</p>
+        <p>Lo más revelador: la <strong>antigüedad no correlaciona con el sueldo</strong>. Un elemento con 30 años de servicio percibe prácticamente lo mismo que uno con 2 años en la misma categoría, alrededor de $4,900 MXN. Los incrementos reales solo ocurren al cambiar de categoría, no por permanencia.</p>
+        <div class="insight">Una estructura salarial plana por antigüedad, combinada con la opacidad del proceso manual de firma, crea el entorno ideal para que una plaza "fantasma" permanezca años en nómina sin detección: su costo es indistinguible del de cualquier otro elemento activo en la misma categoría.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 03: ESCENARIO TRES MESES -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">04</span>
+      <span class="section-title">Scenario Analysis · <em>Impacto SICAD — Abril a Junio 2025</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">code</span><span class="cell-title">03_sicad_cross_validation.py</span></div>
+      <div class="cell-body">
+        <div class="code-block"><span class="cm"># ── Metodología: Auditoría Cruzada Sistema vs. Papeleta</span>
+<span class="cm">#
+#    Para cada periodo se compara:
+#      - registros_sistema: validaciones biométricas en SICAD (huella = presente)
+#      - firmas_papel:      registros en papeleta física del Ayuntamiento
+#
+#    Tipos de caso:
+#      A) biometria=SI, papel=SI  → presencia verificada (VÁLIDO)
+#      B) biometria=NO, papel=NO  → ausente registrado   (DESCUENTO $466)
+#      C) biometria=NO, papel=SI  → ANOMALÍA             (corrupción de operador)
+#
+#    La anomalía Tipo C es la métrica central del sistema.
+#    No puede ocurrir por error del empleado; requiere acción del responsable de mesa.</span>
+
+<span class="var">MASA</span>     = <span class="num">12_284_709.31</span>   <span class="cm"># MXN · masa salarial mensual real</span>
+<span class="var">N</span>        = <span class="num">2117</span>            <span class="cm"># total elementos en plantilla</span>
+<span class="var">DESCUENTO</span> = <span class="num">466.00</span>         <span class="cm"># MXN · descuento por no presentación</span>
+
+<span class="var">periodos</span> = {
+    <span class="str">'Abril 2025'</span>: {
+        <span class="str">'valida_bio'</span>:  <span class="num">1831</span>,  <span class="cm"># firma biométrica + papel (Tipo A)</span>
+        <span class="str">'ausentes'</span>:    <span class="num">117</span>,   <span class="cm"># sin bio, sin papel (Tipo B)</span>
+        <span class="str">'anomalia'</span>:    <span class="num">169</span>,   <span class="cm"># papel sin bio (Tipo C) — antes del sistema</span>
+        <span class="str">'nota'</span>: <span class="str">'Pre-SICAD: anomalías estimadas, no detectadas en tiempo real'</span>
+    },
+    <span class="str">'Mayo 2025'</span>: {
+        <span class="str">'valida_bio'</span>:  <span class="num">1164</span>,  <span class="cm"># SICAD operando: huella obligatoria</span>
+        <span class="str">'ausentes'</span>:    <span class="num">254</span>,   <span class="cm"># no vinieron y papeleta quedó sin firma</span>
+        <span class="str">'anomalia'</span>:    <span class="num">699</span>,   <span class="cm"># papel firmado sin respaldo biométrico → DETECTADO</span>
+        <span class="str">'nota'</span>: <span class="str">'Implementación: corrupción pre-existente ahora visible'</span>
+    },
+    <span class="str">'Junio 2025'</span>: {
+        <span class="str">'valida_bio'</span>:  <span class="num">1481</span>,  <span class="cm"># efecto disuasivo: sube la presencia real</span>
+        <span class="str">'ausentes'</span>:    <span class="num">127</span>,   <span class="cm"># ausentes legítimos — bajan</span>
+        <span class="str">'anomalia'</span>:    <span class="num">509</span>,   <span class="cm"># anomalías residuales — tendencia a la baja</span>
+        <span class="str">'nota'</span>: <span class="str">'Post-SICAD: efecto disuasivo confirmado en datos'</span>
+    },
+}
+
+<span class="kw">for</span> <span class="var">periodo</span>, <span class="var">v</span> <span class="kw">in</span> <span class="var">periodos</span>.<span class="fn">items</span>():
+    <span class="var">rec_erario</span> = <span class="var">v</span>[<span class="str">'ausentes'</span>] * <span class="var">DESCUENTO</span>
+    <span class="var">pct_anomalia</span> = <span class="var">v</span>[<span class="str">'anomalia'</span>] / <span class="var">N</span>
+    <span class="fn">print</span>(<span class="str">f"{periodo}: anomalia={v['anomalia']} ({pct_anomalia:.1%}) · descuentos=${rec_erario:,.0f}"</span>)</div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Escenario mes a mes — Auditoría cruzada Sistema vs. Papeleta</span></div>
+      <div class="scenario-grid">
+
+        <!-- ABRIL -->
+        <div class="scenario-card">
+          <div class="scenario-tag pre">Pre-SICAD</div>
+          <div class="scenario-month">Abril 2025</div>
+
+          <div class="scenario-metric">
+            <div class="s-label">Tipo A — Presencia verificable (biometría + papel)</div>
+            <div class="s-bar-wrap"><div class="s-bar green" style="width:86.5%"></div></div>
+            <div class="s-value green">1,831 elementos · 86.5%</div>
+          </div>
+          <div class="scenario-metric">
+            <div class="s-label">Tipo B — Ausentes registrados (descuento $466)</div>
+            <div class="s-bar-wrap"><div class="s-bar blue" style="width:5.5%"></div></div>
+            <div class="s-value blue">117 elementos · 5.5%</div>
+          </div>
+          <div class="scenario-metric">
+            <div class="s-label">Tipo C — Papel sin biometría (estimado, no detectable)</div>
+            <div class="s-bar-wrap"><div class="s-bar warn" style="width:8%"></div></div>
+            <div class="s-value warn">~169 casos · 8.0% · NO DETECTABLES</div>
+          </div>
+
+          <div class="scenario-divider">
+            <div class="peso-label">Recuperación erario (descuentos Tipo B)</div>
+            <div class="peso-value teal">$54,522 MXN</div>
+            <div class="s-label" style="margin-top:6px;">117 × $466</div>
+          </div>
+          <div class="scenario-divider">
+            <div class="peso-label">Anomalías Tipo C visibles en tiempo real</div>
+            <div class="peso-value dim">0 — sistema no existía</div>
+          </div>
+        </div>
+
+        <!-- MAYO -->
+        <div class="scenario-card highlight">
+          <div class="scenario-tag impl">⚡ Implementación SICAD</div>
+          <div class="scenario-month">Mayo 2025</div>
+
+          <div class="scenario-metric">
+            <div class="s-label">Tipo A — Presencia verificada biométricamente</div>
+            <div class="s-bar-wrap"><div class="s-bar green" style="width:55%"></div></div>
+            <div class="s-value green">1,164 elementos · 55.0%</div>
+          </div>
+          <div class="scenario-metric">
+            <div class="s-label">Tipo B — Ausentes legítimos (no firmaron en ningún lado)</div>
+            <div class="s-bar-wrap"><div class="s-bar blue" style="width:12%"></div></div>
+            <div class="s-value blue">254 elementos · 12.0%</div>
+          </div>
+          <div class="scenario-metric">
+            <div class="s-label">Tipo C — Papel firmado SIN huella en SICAD ← ANOMALÍA</div>
+            <div class="s-bar-wrap"><div class="s-bar danger" style="width:33%"></div></div>
+            <div class="s-value danger">699 casos · 33.0% ← DETECTADOS POR SICAD</div>
+          </div>
+
+          <div class="scenario-divider">
+            <div class="peso-label">Recuperación erario (descuentos Tipo B)</div>
+            <div class="peso-value teal">$118,364 MXN</div>
+            <div class="s-label" style="margin-top:6px;">254 × $466</div>
+          </div>
+          <div class="scenario-divider">
+            <div class="peso-label">Anomalías Tipo C — casos para investigación</div>
+            <div class="peso-value red">699 expedientes → OIC</div>
+          </div>
+        </div>
+
+        <!-- JUNIO -->
+        <div class="scenario-card positive">
+          <div class="scenario-tag post">↗ Efecto Disuasivo</div>
+          <div class="scenario-month">Junio 2025</div>
+
+          <div class="scenario-metric">
+            <div class="s-label">Tipo A — Presencia verificada biométricamente</div>
+            <div class="s-bar-wrap"><div class="s-bar green" style="width:70%"></div></div>
+            <div class="s-value green">1,481 elementos · 70.0%</div>
+          </div>
+          <div class="scenario-metric">
+            <div class="s-label">Tipo B — Ausentes legítimos</div>
+            <div class="s-bar-wrap"><div class="s-bar blue" style="width:6%"></div></div>
+            <div class="s-value blue">127 elementos · 6.0%</div>
+          </div>
+          <div class="scenario-metric">
+            <div class="s-label">Tipo C — Anomalías residuales (tendencia ↓)</div>
+            <div class="s-bar-wrap"><div class="s-bar danger" style="width:24%"></div></div>
+            <div class="s-value danger">509 casos · 24.0% · ↓ 190 vs Mayo</div>
+          </div>
+
+          <div class="scenario-divider">
+            <div class="peso-label">Recuperación erario (descuentos Tipo B)</div>
+            <div class="peso-value teal">$59,182 MXN</div>
+            <div class="s-label" style="margin-top:6px;">127 × $466</div>
+          </div>
+          <div class="scenario-divider">
+            <div class="peso-label">Reducción anomalías vs Mayo</div>
+            <div class="peso-value" style="color:var(--green);">−190 casos (−27.2%)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Visualizaciones: Tendencia y composición por mes</span></div>
+      <div class="chart-container">
+        <div class="chart-row">
+          <div class="chart-box">
+            <div class="chart-label">Tipos de Firma por Mes — Composición (%)</div>
+            <canvas id="stackedChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <div class="chart-label">Anomalías Tipo C — Evolución (casos absolutos)</div>
+            <canvas id="anomChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-row" style="margin-top:16px;">
+          <div class="chart-box">
+            <div class="chart-label">Recuperación del Erario por Mes (MXN · Descuentos Tipo B)</div>
+            <canvas id="recChart"></canvas>
+          </div>
+          <div class="chart-box">
+            <div class="chart-label">Tasa Tipo A — Presencia Verificable Biométricamente (%)</div>
+            <canvas id="compChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Key insight: what the data actually shows</span></div>
+      <div class="md-cell">
+        <h3>Lo que los datos realmente dicen</h3>
+        <p>La caída de la tasa Tipo A de <strong>86.5% → 55%</strong> en Mayo no significa que más empleados dejaron de presentarse. Significa que el SICAD expuso por primera vez que muchas de esas "firmas" de Abril no correspondían a presencias reales. La corrupción ya existía; el sistema la hizo visible.</p>
+        <p>Las <strong>699 anomalías Tipo C</strong> de Mayo son casos donde existe firma autógrafa en la papeleta del Ayuntamiento pero SICAD no registró huella dactilar. Esto no ocurre por olvido ni distracción: requiere que el operador de mesa firmara deliberadamente por alguien que no se presentó.</p>
+        <div class="insight">La reducción de 699 → 509 anomalías entre Mayo y Junio es evidencia cuantitativa del efecto disuasivo: los operadores que antes firmaban por ausentes comenzaron a abstenerse al saber que el sistema registraría la discrepancia. Eso también explica el aumento de ausentes Tipo B visibles en Junio, antes esas personas aparecían como "firmadas" en papel aunque no hubieran ido.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04: RECUPERACION -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">05</span>
+      <span class="section-title">Financial Recovery · <em>Recuperación del Erario</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">KPIs: Recuperación y anomalías acumuladas Q2 2025</span></div>
+      <div class="kpi-grid">
+        <div class="kpi-card green">
+          <div class="kpi-label">Recuperación Acumulada Q2</div>
+          <div class="kpi-value">$232K</div>
+          <div class="kpi-sub">MXN · 3 meses de descuentos Tipo B</div>
+          <div class="kpi-delta up">$54,522 + $118,364 + $59,182</div>
+        </div>
+        <div class="kpi-card accent">
+          <div class="kpi-label">Descuento Unitario</div>
+          <div class="kpi-value">$466</div>
+          <div class="kpi-sub">MXN por ausencia sin firma</div>
+          <div class="kpi-delta up">Aplicado en siguiente quincena</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-label">Anomalías Tipo C · Mayo</div>
+          <div class="kpi-value">699</div>
+          <div class="kpi-sub">Casos → Órgano Interno de Control</div>
+          <div class="kpi-delta down">33% del total de plantilla</div>
+        </div>
+        <div class="kpi-card warn">
+          <div class="kpi-label">Reducción Anomalías · Junio</div>
+          <div class="kpi-value">−27.2%</div>
+          <div class="kpi-sub">699 → 509 · efecto disuasivo</div>
+          <div class="kpi-delta warn">Tendencia proyectada: &lt;15% en Mes 4</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Recuperación por área: Top 6 unidades con mayor exposición Tipo C</span></div>
+      <div class="cell-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Área / Unidad</th>
+              <th>Elementos</th>
+              <th class="td-num">Masa Mensual (MXN)</th>
+              <th class="td-num">Anomalías Est. Tipo C Mayo</th>
+              <th class="td-num">Descuentos Tipo B (MXN)</th>
+              <th>Exposición Tipo C</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Dir. Policia Preventiva Auxiliar</td>
+              <td>510</td>
+              <td class="td-num td-accent">$2,534,063</td>
+              <td class="td-num td-danger">168 <span class="badge badge-danger">33%</span></td>
+              <td class="td-num td-green">$37,254</td>
+              <td><div class="mini-bar"><div class="mini-bar-fill" style="width:100%; background:var(--danger);"></div></div></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Depto. Operativo Pol. Preventiva</td>
+              <td>252</td>
+              <td class="td-num td-accent">$1,537,921</td>
+              <td class="td-num td-danger">83 <span class="badge badge-danger">33%</span></td>
+              <td class="td-num td-green">$18,414</td>
+              <td><div class="mini-bar"><div class="mini-bar-fill" style="width:49%; background:var(--danger);"></div></div></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Depto. Operatividad Vial</td>
+              <td>200</td>
+              <td class="td-num td-accent">$1,113,286</td>
+              <td class="td-num td-danger">66 <span class="badge badge-danger">33%</span></td>
+              <td class="td-num td-green">$14,612</td>
+              <td><div class="mini-bar"><div class="mini-bar-fill" style="width:39%; background:var(--danger);"></div></div></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Dir. Protección y Asist. Turística</td>
+              <td>186</td>
+              <td class="td-num td-accent">$1,083,277</td>
+              <td class="td-num td-danger">61 <span class="badge badge-danger">33%</span></td>
+              <td class="td-num td-green">$13,596</td>
+              <td><div class="mini-bar"><div class="mini-bar-fill" style="width:36%; background:var(--danger);"></div></div></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Sector 3</td>
+              <td>82</td>
+              <td class="td-num td-accent">$503,969</td>
+              <td class="td-num td-warn">27 <span class="badge badge-warn">33%</span></td>
+              <td class="td-num td-green">$5,984</td>
+              <td><div class="mini-bar"><div class="mini-bar-fill" style="width:16%; background:var(--warn);"></div></div></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Sector 2</td>
+              <td>76</td>
+              <td class="td-num td-accent">$460,407</td>
+              <td class="td-num td-warn">25 <span class="badge badge-warn">33%</span></td>
+              <td class="td-num td-green">$5,544</td>
+              <td><div class="mini-bar"><div class="mini-bar-fill" style="width:15%; background:var(--warn);"></div></div></td>
+            </tr>
+            <tr style="background:rgba(0,212,170,0.04);">
+              <td colspan="2" style="color:var(--accent); font-weight:700;">TOTAL PLANTILLA</td>
+              <td style="color:var(--accent);">2,117</td>
+              <td class="td-num td-accent">$12,284,709</td>
+              <td class="td-num td-danger" style="font-weight:700;">699 casos</td>
+              <td class="td-num td-green" style="font-weight:700;">$118,364</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+      <!-- 06: STACK TECNOLÓGICO -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">06</span>
+      <span class="section-title">Tech Stack · <em>Por Qué Cada Herramienta</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Stack con sentido estratégico</span></div>
+      <div class="md-cell">
+        <h3>Las herramientas no son el punto, el criterio para elegirlas sí</h3>
+        <p><strong>Python + Pandas: Limpieza, cruce y detección</strong><br>
+        La lógica central del proyecto — cruzar registros biométricos del SICAD contra firmas en papeleta del Ayuntamiento, requería transformaciones que no son triviales en Excel: manejo de fechas seriales, extracción de campos compuestos, clasificación por keywords de categoría y cruce de dos fuentes con formatos distintos. Python fue la herramienta más eficiente para construir ese pipeline de forma repetible y auditable quincena a quincena.</p>
+
+        <p><strong>PostgreSQL: Persistencia, trazabilidad y escalabilidad</strong><br>
+        Cada registro tiene timestamp de inserción y usuario de carga. Eso convierte la base de datos en evidencia auditable ante el OIC, no solo en un reporte. El esquema además permite agregar nuevas quincenas sin modificar estructura y escalar a otras dependencias municipales sin rediseño.</p>
+
+        <p><strong>Hardware biométrico: La restricción que hace el sistema inviolable</strong><br>
+        La huella dactilar es el único registro que no puede operarse por un tercero desde la mesa de firma. Esa restricción física convierte cualquier discrepancia Tipo C en evidencia atribuible — no en ambigüedad.</p>
+
+        <p><strong>Chart.js: Visualización embebida sin dependencias externas</strong><br>
+        En reportes de gobierno que se comparten sin acceso a herramientas de BI corporativas, Chart.js embebido en HTML permite entregar dashboards que funcionan en cualquier navegador, sin login, sin licencia. La accesibilidad del reporte es parte del diseño.</p>
+
+        <div class="note">El stack es deliberadamente conservador. Sin modelos de ML, sin NLP, sin infraestructura cloud. El problema no los requería y agregar complejidad innecesaria en un proyecto de gobierno habría dificultado la auditoría y la transferencia al equipo interno.</div>
+      </div>
+    </div>
+  </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type markdown">markdown</span><span class="cell-title">Insight — correct framing of erario recovery</span></div>
+      <div class="md-cell">
+        <h3>Encuadre Correcto: Dos Tipos de Valor Generado por SICAD</h3>
+        <p><strong>Valor 1: Recuperación directa del erario:</strong> Los descuentos de $466 MXN aplicados a los <strong>498 ausentes legítimos acumulados</strong> en Q2 2025 representan <strong>$232,068 MXN</strong> recuperados que en el modelo anterior eran invisibles. El operador simplemente los cubría con una firma falsa.</p>
+        <p><strong>Valor 2: Detección de irregularidades estructurales:</strong> Las <strong>699 anomalías Tipo C</strong> de Mayo son expedientes con evidencia documental de que el operador firmó por personal ausente. No se convierten en recuperación inmediata, pero son la base probatoria para procesos administrativos y depuración de plazas irregulares en el largo plazo.</p>
+        <div class="insight">El indicador de salud del sistema no es la tasa de presencia Tipo A, puede moverse por factores operativos legítimos. El indicador que importa es la <strong>tasa de anomalía Tipo C</strong>. Un sistema biométrico sano debería tener Tipo C → 0%. Cualquier valor mayor es responsabilidad directa del operador de mesa, no del empleado.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 07: CONCLUSIONES -->
+  <div class="section">
+    <div class="section-label">
+      <span class="section-num">07</span>
+      <span class="section-title">Conclusions &amp; Recommendations · <em>Conclusiones y Recomendaciones</em></span>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type output">output</span><span class="cell-title">Executive summary</span></div>
+      <div class="md-cons">
+        <h3>Executive Summary / Resumen Ejecutivo</h3>
+        <div class="conclusion-item">
+          <span class="conclusion-icon">01</span>
+          <span class="conclusion-text"><strong>Corrupción operativa cuantificada:</strong> En Mayo 2025, primer mes de operación del SICAD, detectamos <strong>699 firmas en papel sin respaldo biométrico,</strong> un 33% de la plantilla. Estas anomalías no tienen explicación técnica ni de distracción: solo pueden originarse por acción deliberada del operador de mesa.</span>
+        </div>
+        <div class="conclusion-item">
+          <span class="conclusion-icon">02</span>
+          <span class="conclusion-text"><strong>Recuperación directa del erario:</strong> Los descuentos de $466 MXN por ausencias legítimas (Tipo B), ahora detectables gracias al SICAD, generaron <strong>$232,068 MXN</strong> recuperados en Q2 2025. En el modelo anterior esas ausencias quedaban ocultas bajo firmas falsas del operador.</span>
+        </div>
+        <div class="conclusion-item">
+          <span class="conclusion-icon">03</span>
+          <span class="conclusion-text"><strong>Efecto disuasivo confirmado en datos:</strong> Las anomalías Tipo C cayeron un <strong>27.2% entre Mayo y Junio</strong> (699 → 509) sin cambios de personal ni procesos sancionatorios iniciados. La sola existencia del registro biométrico modificó el comportamiento de los operadores.</span>
+        </div>
+        <div class="conclusion-item">
+          <span class="conclusion-icon">04</span>
+          <span class="conclusion-text"><strong>Depurar plazas con patrón crónico:</strong> Correlacionar anomalías Tipo C acumuladas con el historial de ausencias por empleado. Un elemento que aparece como "firmado" quincena tras quincena sin registro biométrico es candidato a plaza fantasma o plaza irregular. Ese cruce identifica el riesgo real de sueldo percibido sin prestación de servicio.</span>
+        </div>
+        <div class="conclusion-item">
+          <span class="conclusion-icon">05</span>
+          <span class="conclusion-text"><strong>Escalabilidad, digitalizar el resto de procesos administrativos:</strong> El problema que resolvió SICAD en nómina, opacidad operativa por procesos manuales sin trazabilidad, no se limita a la firma quincenal. La SSP opera con papel en permisos y ausencias justificadas, saldos vacacionales, guardias y turnos extraordinarios, y resguardos de equipamiento táctico. Cada uno tiene la misma vulnerabilidad: sin registro digital, no hay evidencia, y sin evidencia, no hay rendición de cuentas. El esquema PostgreSQL y el pipeline Python ya están diseñados para soportar esta expansión sin rediseño, el costo marginal de agregar un módulo es mínimo comparado con el costo de seguir operando cada proceso en papel.
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <a class="demo-link"
+      href="https://docs.google.com/spreadsheets/d/1BGLI6oG-vM-EAFV9dI5582vjpickKF2F/edit?gid=935384027#gid=935384027"
+      target="_blank">
+      ↗ Ejecutar demo del sistema
+    </a>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:10px;">
+      ⚠ Aviso de confidencialidad: La información presentada ha sido anonimizada y parcialmente ajustada con fines
+      demostrativos. Estas modificaciones preservan la integridad metodológica y la validez de los hallazgos, sin
+      exponer datos sensibles o propietarios de la organización.
+    </p>
+
+  <div class="nb-footer">
+    <span>SICAD · EDA Notebook · SSP Acapulco · Q2 2025</span>
+    <span>Python 3.12 · Pandas · PostgreSQL · Chart.js</span>
+  </div>
+</div>
+
+<script>
+const C = {
+  accent:'#00d4aa', warn:'#f59e0b', danger:'#ef4444',
+  green:'#3fb950', purple:'#a78bfa', blue:'#60a5fa',
+  dim:'#1e2d3d', text:'#5a7a96', grid:'rgba(30,45,61,0.5)'
+};
+Chart.defaults.color = C.text;
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 10;
+
+const tt = { backgroundColor:'#111720', borderColor:C.dim, borderWidth:1, titleColor:'#e6edf3', bodyColor:C.text };
+const sc = (x,y) => ({ x:{ grid:{color:C.grid}, ticks:{color:C.text,...(x||{})} }, y:{ grid:{color:C.grid}, ticks:{color:C.text,...(y||{})} } });
+
+// HISTOGRAM
+new Chart(document.getElementById('histChart'),{
+  type:'bar',
+  data:{
+    labels:['<$1K','$1-2K','$2-3K','$3-4K','$4-4.5K','$4.5-5K','$5-5.2K','$5.2-5.5K','$5.5-5.7K','$5.7-6K','$6-6.5K','$6.5-7K','$7-8K','$8-10K','$10-12K','$12K+'],
+    datasets:[{ data:[5,3,5,8,15,195,430,405,320,290,145,90,68,52,40,46], backgroundColor:ctx=>ctx.parsed.y>100?C.accent+'cc':C.accent+'40', borderColor:C.accent, borderWidth:1 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false},tooltip:tt}, scales:sc() }
+});
+
+// CATEGORIAS
+new Chart(document.getElementById('catChart'),{
+  type:'bar',
+  data:{
+    labels:['POLICIA','POL.AUX.','POL.3o','AUX.ADM.','POL.2o','ADM.A','POL.1o','ASIST.TUR.'],
+    datasets:[{ data:[4330626,2327761,1362024,1169733,780146,439630,404555,248768], backgroundColor:[C.accent+'bb',C.accent+'99',C.accent+'77',C.blue+'88',C.warn+'88',C.purple+'88',C.green+'88',C.accent+'55'], borderColor:C.dim, borderWidth:1 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, indexAxis:'y', plugins:{legend:{display:false},tooltip:tt}, scales:{ x:{grid:{color:C.grid},ticks:{callback:v=>'$'+(v/1e6).toFixed(1)+'M',color:C.text}}, y:{grid:{color:C.grid},ticks:{color:C.text,font:{size:9}}} } }
+});
+
+// TIPO DONUT
+new Chart(document.getElementById('tipoChart'),{
+  type:'doughnut',
+  data:{
+    labels:['Operativo (1,727)','Administrativo (390)'],
+    datasets:[{ data:[1727,390], backgroundColor:[C.accent+'cc',C.purple+'cc'], borderColor:'#161e2a', borderWidth:3 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:true,position:'bottom',labels:{color:C.text,font:{size:10}}}, tooltip:tt } }
+});
+
+// ANTIGUEDAD
+new Chart(document.getElementById('antChart'),{
+  type:'line',
+  data:{
+    labels:['0-2','2-5','5-10','10-15','15-20','20-30','30+'],
+    datasets:[{ label:'Sueldo Promedio', data:[5105,4967,4950,5050,4874,5012,4942], borderColor:C.warn, backgroundColor:C.warn+'18', borderWidth:2, pointBackgroundColor:C.warn, pointRadius:4, tension:0.3, fill:true }]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false},tooltip:tt}, scales:{ x:sc().x, y:{grid:{color:C.grid},min:4500,ticks:{callback:v=>'$'+v.toLocaleString(),color:C.text}} } }
+});
+
+// STACKED - composicion por mes
+new Chart(document.getElementById('stackedChart'),{
+  type:'bar',
+  data:{
+    labels:['Abril 2025','Mayo 2025','Junio 2025'],
+    datasets:[
+      { label:'Tipo A — Verificado',  data:[86.5,55.0,70.0], backgroundColor:C.green+'cc' },
+      { label:'Tipo B — Ausente leg.', data:[5.5,12.0,6.0],  backgroundColor:C.blue+'cc'  },
+      { label:'Tipo C — Anomalía',    data:[8.0,33.0,24.0],  backgroundColor:C.danger+'cc'},
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:true,position:'bottom',labels:{color:C.text,font:{size:10}}}, tooltip:tt }, scales:{ x:{stacked:true,grid:{color:C.grid},ticks:{color:C.text}}, y:{stacked:true,grid:{color:C.grid},min:0,max:100,ticks:{callback:v=>v+'%',color:C.text}} } }
+});
+
+// ANOMALIAS TIPO C
+new Chart(document.getElementById('anomChart'),{
+  type:'line',
+  data:{
+    labels:['Abril 2025 (estimado)','Mayo 2025','Junio 2025'],
+    datasets:[
+      { label:'Anomalías Tipo C', data:[169,699,509], borderColor:C.danger, backgroundColor:C.danger+'22', borderWidth:2.5, pointBackgroundColor:C.danger, pointRadius:7, tension:0.2, fill:true },
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:tt, annotation:{} }, scales:{ x:{grid:{color:C.grid},ticks:{color:C.text,font:{size:9}}}, y:{grid:{color:C.grid},min:0,ticks:{color:C.text}} } }
+});
+
+// RECUPERACION ERARIO
+new Chart(document.getElementById('recChart'),{
+  type:'bar',
+  data:{
+    labels:['Abril 2025','Mayo 2025','Junio 2025'],
+    datasets:[{ label:'Descuentos recuperados (MXN)', data:[54522,118364,59182], backgroundColor:[C.accent+'77',C.accent+'cc',C.accent+'99'], borderColor:C.accent, borderWidth:1.5 }]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false},tooltip:tt}, scales:{ x:{grid:{color:C.grid},ticks:{color:C.text}}, y:{grid:{color:C.grid},ticks:{callback:v=>'$'+v.toLocaleString(),color:C.text}} } }
+});
+
+// TASA TIPO A
+new Chart(document.getElementById('compChart'),{
+  type:'line',
+  data:{
+    labels:['Abril 2025','Mayo 2025','Junio 2025'],
+    datasets:[
+      { label:'Tasa Tipo A (%)', data:[86.5,55.0,70.0], borderColor:C.green, backgroundColor:C.green+'22', borderWidth:2.5, pointBackgroundColor:C.green, pointRadius:7, tension:0.2, fill:true },
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false},tooltip:tt}, scales:{ x:{grid:{color:C.grid},ticks:{color:C.text,font:{size:9}}}, y:{grid:{color:C.grid},min:40,max:100,ticks:{callback:v=>v+'%',color:C.text}} } }
+});
+</script>
+</body>
+</html>
